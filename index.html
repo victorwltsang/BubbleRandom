@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bubble random</title>
+  
+  
+  
+  
+  
+</head>
+
+<body>
+
+  <style>
+  @import url('https://fonts.googleapis.com/css?family=Roboto');
+  #bubbleZoom text {
+    text-anchor: middle;
+    fill: #fff;
+  }
+
+  #bubbleZoom {
+    font-family: 'Roboto', sans-serif;
+  }
+</style>
+
+<div id="bubbleZoom"></div>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://unpkg.com/shape2path@2.0.0/build/shape2path.min.js"></script>
+<script src="https://unpkg.com/jeezy@1.12.0/lib/jeezy.min.js"></script>
+<script>
+  var topics = ["Netflix", "Amazon Prime Video", "Hulu", "YouTube", "HBO"];
+  var netflix = [{
+      name: "Netflix",
+      size: 40
+    },
+    {
+      name: "13 Reasons Why",
+      size: 15
+    },
+    {
+      name: "Save Lucifer",
+      size: 10
+    },
+    {
+      name: "Breaking Bad",
+      size: 9
+    },
+    {
+      name: "Obama",
+      size: 20
+    },
+    {
+      name: "3%",
+      size: 15
+    },
+    {
+      name: "Money Heist",
+      size: 10
+    },
+    {
+      name: "Dark",
+      size: 9
+    },
+    {
+      name: "Stranger Things",
+      size: 20
+    }
+  ];
+  var amazon = [{
+      name: "Amazon Prime Video",
+      size: 40
+    },
+    {
+      name: "Sneaky Pete",
+      size: 15
+    },
+    {
+      name: "The Tick",
+      size: 10
+    },
+    {
+      name: "Hand of God",
+      size: 9
+    },
+    {
+      name: "Goliath",
+      size: 20
+    },
+    {
+      name: "The Grand Tour",
+      size: 15
+    },
+    {
+      name: "Bosch",
+      size: 10
+    },
+    {
+      name: "Red Oaks",
+      size: 9
+    },
+    {
+      name: "Patriot",
+      size: 20
+    }
+  ];
+  var hulu = [{
+      name: "Hulu",
+      size: 40
+    },
+    {
+      name: "Casual",
+      size: 25
+    },
+    {
+      name: "Rick and Morty",
+      size: 15
+    },
+    {
+      name: "Seinfield",
+      size: 30
+    },
+    {
+      name: "Harlots",
+      size: 20
+    },
+    {
+      name: "Castle Rock",
+      size: 15
+    },
+    {
+      name: "This is Us",
+      size: 10
+    },
+    {
+      name: "Community",
+      size: 9
+    },
+    {
+      name: "Future Man",
+      size: 20
+    }
+  ];
+  var videoData = [netflix, amazon, hulu];
+  console.log(videoData[0]);
+  var colors = ['#fd3259', '#595bd4', '#167ffc', '#3cabdb', '#53d86a'];
+  var color = d3.scaleOrdinal()
+    .range(colors);
+  var width = 600,
+    height = 600;
+  var svg = d3.select("#bubbleZoom").append("svg").attr("width", width).attr("height", height);
+  var pack = d3.pack()
+    .size([width, height])
+    .padding(1.5);
+  redraw(randomizeData());
+  // d3.interval(function() {
+  //   redraw(randomizeData());
+  // }, 5000);
+  d3.interval(function() {
+    console.log("ran");
+    redraw(showData());
+    setTimeout(function() {
+      console.log("ran");
+      redraw(randomizeData());
+    }, 5000);
+  }, 9000);
+
+  function redraw(classes) {
+    // hierarchy
+    var h = d3.hierarchy({
+        children: classes
+      })
+      .sum(function(d) {
+        return d.size;
+      })
+    //JOIN
+    var circle = svg.selectAll("path")
+      .data(pack(h).leaves(), function(d) {
+        return d.data.name;
+      });
+    var text = svg.selectAll("text")
+      .data(pack(h).leaves(), function(d) {
+        return d.data.name;
+      });
+    //EXIT
+    circle.exit()
+      .style("fill", "#b26745")
+      .transition()
+      .attr("d", function(d) {
+        return shape2path.circle({
+          cx: d.x,
+          cy: d.y,
+          r: 1e-6
+        });
+      })
+      .remove();
+    text.exit()
+      .transition()
+      .attr("opacity", 1e-6)
+      .remove();
+    //UPDATE
+    circle
+      .transition()
+      .duration(1000)
+      .attr("d", function(d) {
+        return shape2path.circle({
+          cx: d.x,
+          cy: d.y,
+          r: d.r
+        });
+      })
+      .style("fill", "#3a403d");
+    text
+      .transition()
+      .attr("x", function(d) {
+        return d.x;
+      })
+      .attr("y", function(d) {
+        return d.y;
+      });
+    //ENTER
+    circle.enter().append("path")
+      .attr("d", function(d) {
+        return shape2path.circle({
+          cx: d.x,
+          cy: d.y,
+          r: 1e-6
+        });
+      })
+      .style("fill", "#fff")
+      .transition()
+      .duration(2000)
+      .attr("d", function(d) {
+        return shape2path.circle({
+          cx: d.x,
+          cy: d.y,
+          r: d.r
+        });
+      })
+      .style("fill", function(d, i) {
+        return color(i);
+      });
+    text.enter().append("text")
+      .attr("opacity", 1e-6)
+      .attr("x", function(d) {
+        return d.x;
+      })
+      .attr("y", function(d) {
+        return d.y;
+      })
+      .attr("dy", 6)
+      .text(function(d) {
+        return d.data.name;
+      })
+      .transition()
+      .attr("opacity", 1);
+  }
+
+  function randomizeData() {
+    var out = [];
+    var shuffled = jz.arr.shuffle(topics);
+    for (var i = 0; i < topics.length; i++) {
+      out.push({
+        name: shuffled[i],
+        size: jz.num.randBetween(1, 1)
+      });
+    }
+    return out;
+  }
+  var topicCounter = 0;
+
+  function showData() {
+    var out = [];
+    for (var i = 0; i < videoData[topicCounter].length; i++) {
+      out.push({
+        name: videoData[topicCounter][i].name,
+        size: videoData[topicCounter][i].size
+      });
+    }
+    topicCounter++;
+    if (topicCounter == videoData.length) {
+      topicCounter = 0;
+    }
+    return out;
+  }
+</script>
+  
+  
+
+</body>
+
+</html>
