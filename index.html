@@ -1,19 +1,4 @@
-<!DOCTYPE html>
-<html lang="en" >
-
-<head>
-  <meta charset="UTF-8">
-  <title>Bubble random</title>
-  
-  
-  
-  
-  
-</head>
-
-<body>
-
-  <style>
+<style>
   @import url('https://fonts.googleapis.com/css?family=Roboto');
   #bubbleZoom text {
     text-anchor: middle;
@@ -26,7 +11,7 @@
 </style>
 
 <div id="bubbleZoom"></div>
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://unpkg.com/shape2path@2.0.0/build/shape2path.min.js"></script>
 <script src="https://unpkg.com/jeezy@1.12.0/lib/jeezy.min.js"></script>
 <script>
@@ -175,11 +160,11 @@
         return d.size;
       })
     //JOIN
-    var circle = svg.selectAll("path")
+    var circle = svg.selectAll("#bubbleZoom path")
       .data(pack(h).leaves(), function(d) {
         return d.data.name;
       });
-    var text = svg.selectAll("text")
+    var text = svg.selectAll("#bubbleZoom text")
       .data(pack(h).leaves(), function(d) {
         return d.data.name;
       });
@@ -285,9 +270,3 @@
     return out;
   }
 </script>
-  
-  
-
-</body>
-
-</html>
