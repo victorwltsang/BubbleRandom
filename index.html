@@ -143,10 +143,10 @@
   //   redraw(randomizeData());
   // }, 5000);
   d3.interval(function() {
-    console.log("ran");
+
     redraw(showData());
     setTimeout(function() {
-      console.log("ran");
+
       redraw(randomizeData());
     }, 5000);
   }, 9000);
@@ -195,7 +195,12 @@
           r: d.r
         });
       })
-      .style("fill", "#3a403d");
+      .style("fill", function(d, i) {
+        if (d.parent.children[0].data.color) {
+          return color(d.parent.children[0].data.color);
+        }
+        return color(i);
+      });
     text
       .transition()
       .attr("x", function(d) {
@@ -220,10 +225,13 @@
         return shape2path.circle({
           cx: d.x,
           cy: d.y,
-          r: d.r
+          r: d.r-10
         });
       })
       .style("fill", function(d, i) {
+        if (d.parent.children[0].data.color) {
+          return color(d.parent.children[0].data.color);
+        }
         return color(i);
       });
     text.enter().append("text")
@@ -239,12 +247,14 @@
         return d.data.name;
       })
       .transition()
-      .attr("opacity", 1);
+      .attr("opacity", 1).style("font-size", function(d) { return Math.min(2 * d.r, (2 * d.r - 8) / this.getComputedTextLength() * 10) + "px"; })
+      .attr("dy", ".35em");
+
   }
 
   function randomizeData() {
     var out = [];
-    var shuffled = jz.arr.shuffle(topics);
+    var shuffled = topics;
     for (var i = 0; i < topics.length; i++) {
       out.push({
         name: shuffled[i],
@@ -260,7 +270,8 @@
     for (var i = 0; i < videoData[topicCounter].length; i++) {
       out.push({
         name: videoData[topicCounter][i].name,
-        size: videoData[topicCounter][i].size
+        size: videoData[topicCounter][i].size,
+        color: colors[topicCounter]
       });
     }
     topicCounter++;
